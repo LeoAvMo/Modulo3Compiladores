@@ -5,8 +5,6 @@
 //  Created by Leo A.Molina on 28/09/26.
 //
 
-import Playgrounds
-
 final class QueueNode<T> {
     var value: T
     var next: QueueNode<T>?
@@ -28,25 +26,34 @@ final class QueueStorage<T>{
         self.tail = head
     }
     
-    func isEmpty() -> Bool {
-        return head == nil
-    }
-    
     func enqueue(_ element: T) {
         let current = QueueNode(value: element, next: nil)
         
-        if self.isEmpty() {
+        if head == nil {
             head = current
             tail = head
         } else {
+            
             tail!.next = current
             tail = tail!.next
         }
     }
     
+    func dequeue() {
+        if head == nil {
+            return
+        } else if head!.next == nil {
+            head = nil
+            tail = head
+        } else {
+            head = head!.next
+        }
+    }
+    
     func copy() -> QueueStorage {
         var current = head
-        var queue = QueueStorage()
+        let queue = QueueStorage()
+        
         while current != nil {
             queue.enqueue(current!.value)
             current = current?.next
@@ -101,27 +108,15 @@ struct Queue<T>: Sequence{
     
     mutating func enqueue(_ element: T) {
         checkReferences()
-        let current = QueueNode(value: element, next: nil)
-        
-        if self.isEmpty() {
-            storage.head = current
-            storage.tail = storage.head
-        } else {
-            storage.tail!.next = current
-            storage.tail = storage.tail!.next
-        }
+        self.storage.enqueue(element)
     }
     
     mutating func dequeue() {
-        checkReferences()
-        if self.isEmpty() {
+        guard !self.isEmpty() else {
             return
-        } else if storage.head!.next == nil {
-            storage.head = nil
-            storage.tail = storage.head
-        } else {
-            storage.head = storage.head!.next
         }
+        checkReferences()
+        self.storage.dequeue()
     }
     
     func getHead() -> T? {
@@ -146,18 +141,3 @@ struct Queue<T>: Sequence{
     
 }
 
-#Playground {
-    
-    var q = Queue(values: [1,2,3,4])
-    var a = q
-    a.dequeue()
-    
-    print("q queue")
-    for val in q {
-        print(val)
-    }
-    print("a queue")
-    for val in a {
-        print(val)
-    }
-}
