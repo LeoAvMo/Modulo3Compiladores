@@ -15,9 +15,10 @@ final class QueueNode<T> {
         self.value = value
         self.next = next
     }
+    
 }
 
-final class QueueStorage<T>: Sequence {
+final class QueueStorage<T>{
     
     var head: QueueNode<T>?
     var tail: QueueNode<T>?
@@ -27,15 +28,8 @@ final class QueueStorage<T>: Sequence {
         self.tail = head
     }
     
-    convenience init(values: [T]) {
-        self.init()
-        for val in values {
-            enqueue(val)
-        }
-    }
-    
-    func makeIterator() -> QueueIterator<T> {
-        return QueueIterator<T>(queue: self)
+    func isEmpty() -> Bool {
+        return head == nil
     }
     
     func enqueue(_ element: T) {
@@ -50,46 +44,24 @@ final class QueueStorage<T>: Sequence {
         }
     }
     
-    func dequeue() {
-        if self.isEmpty() {
-            return
-        } else if head!.next == nil {
-            self.head = nil
-            self.tail = head
-        } else {
-            head = head!.next
-        }
-    }
-    
-    func getHead() -> T? {
-        return head?.value
-    }
-    
-    func getTail() -> T? {
-        return tail?.value
-    }
-    
-    func isEmpty() -> Bool {
-        return head == nil
-    }
-    
-    func printQueue() {
+    func copy() -> QueueStorage {
         var current = head
+        var queue = QueueStorage()
         while current != nil {
-            print(current!.value)
+            queue.enqueue(current!.value)
             current = current?.next
         }
+        return queue
     }
 }
 
 struct QueueIterator<T>: IteratorProtocol {
-    var queue: QueueStorage<T>
     var current: QueueNode<T>?
     
-    init(queue: QueueStorage<T>) {
-        self.queue = queue
-        current = queue.head
+    init(current: QueueNode<T>?) {
+        self.current = current
     }
+    
     
     mutating func next() -> T? {
         if current != nil {
@@ -102,39 +74,90 @@ struct QueueIterator<T>: IteratorProtocol {
     }
 }
 
-struct Queue<T> {
+struct Queue<T>: Sequence{
     
     private var storage: QueueStorage<T>
     
-    init(_ storage: QueueStorage<T> = QueueStorage()) {
-        self.storage = storage
+    init() {
+        self.storage = QueueStorage()
     }
     
     init(values: [T]) {
-        self.storage = QueueStorage(values: values)
+        self.storage = QueueStorage()
+        for value in values {
+            self.enqueue(value)
+        }
+    }
+    
+    func makeIterator() -> QueueIterator<T> {
+        return QueueIterator<T>(current: storage.head)
+    }
+    
+    private mutating func checkReferences() {
+        if !isKnownUniquelyReferenced(&self.storage) {
+            self.storage = storage.copy()
+        }
+    }
+    
+    mutating func enqueue(_ element: T) {
+        checkReferences()
+        let current = QueueNode(value: element, next: nil)
+        
+        if self.isEmpty() {
+            storage.head = current
+            storage.tail = storage.head
+        } else {
+            storage.tail!.next = current
+            storage.tail = storage.tail!.next
+        }
+    }
+    
+    mutating func dequeue() {
+        checkReferences()
+        if self.isEmpty() {
+            return
+        } else if storage.head!.next == nil {
+            storage.head = nil
+            storage.tail = storage.head
+        } else {
+            storage.head = storage.head!.next
+        }
+    }
+    
+    func getHead() -> T? {
+        storage.head?.value
+    }
+    
+    func getTail() -> T? {
+        storage.tail?.value
+    }
+    
+    func isEmpty() -> Bool {
+        return storage.head == nil
+    }
+    
+    func printQueue() {
+        var current = storage.head
+        while current != nil {
+            print(current!.value)
+            current = current?.next
+        }
     }
     
 }
 
 #Playground {
-    print("Starting iii")
-    var q = QueueStorage(values: [1,2,3,4])
-    print("All values")
-    for i in q {
-        print(i)
+    
+    var q = Queue(values: [1,2,3,4])
+    var a = q
+    a.dequeue()
+    
+    print("q queue")
+    for val in q {
+        print(val)
     }
-    print("Values")
-    q.printQueue()
-    q.dequeue()
-    q.dequeue()
-    q.dequeue()
-    q.dequeue()
-    q.dequeue()
-    print("After dequeue")
-    q.printQueue()
-    print("After enqueue")
-    q.enqueue(1)
-    q.enqueue(1)
-    q.enqueue(1)
-    q.printQueue()
+    print("a queue")
+    for val in a {
+        print(val)
+    }
 }
