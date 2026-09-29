@@ -7,7 +7,7 @@
 
 import Playgrounds
 
-class QueueNode<T> {
+final class QueueNode<T> {
     var value: T
     var next: QueueNode<T>?
     
@@ -17,7 +17,7 @@ class QueueNode<T> {
     }
 }
 
-struct QueueStorage<T>: Sequence {
+final class QueueStorage<T>: Sequence {
     
     var head: QueueNode<T>?
     var tail: QueueNode<T>?
@@ -27,10 +27,10 @@ struct QueueStorage<T>: Sequence {
         self.tail = head
     }
     
-    init(values: [T]) {
+    convenience init(values: [T]) {
         self.init()
-        for value in values {
-            self.enqueue(value)
+        for val in values {
+            enqueue(val)
         }
     }
     
@@ -38,7 +38,7 @@ struct QueueStorage<T>: Sequence {
         return QueueIterator<T>(queue: self)
     }
     
-    mutating func enqueue(_ element: T) {
+    func enqueue(_ element: T) {
         let current = QueueNode(value: element, next: nil)
         
         if self.isEmpty() {
@@ -50,11 +50,12 @@ struct QueueStorage<T>: Sequence {
         }
     }
     
-    mutating func dequeue() {
+    func dequeue() {
         if self.isEmpty() {
             return
         } else if head!.next == nil {
-            self = .init()
+            self.head = nil
+            self.tail = head
         } else {
             head = head!.next
         }
@@ -83,24 +84,40 @@ struct QueueStorage<T>: Sequence {
 
 struct QueueIterator<T>: IteratorProtocol {
     var queue: QueueStorage<T>
+    var current: QueueNode<T>?
     
     init(queue: QueueStorage<T>) {
         self.queue = queue
+        current = queue.head
     }
     
     mutating func next() -> T? {
-        if queue.head != nil {
+        if current != nil {
             defer {
-                queue.head = queue.head?.next
+                current = current?.next
             }
-            return queue.head?.value
+            return current?.value
         }
         return nil
     }
 }
 
+struct Queue<T> {
+    
+    private var storage: QueueStorage<T>
+    
+    init(_ storage: QueueStorage<T> = QueueStorage()) {
+        self.storage = storage
+    }
+    
+    init(values: [T]) {
+        self.storage = QueueStorage(values: values)
+    }
+    
+}
+
 #Playground {
-    print("Starting")
+    print("Starting iii")
     var q = QueueStorage(values: [1,2,3,4])
     print("All values")
     for i in q {
