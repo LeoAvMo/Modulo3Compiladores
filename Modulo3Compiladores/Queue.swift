@@ -8,22 +8,22 @@
 import Playgrounds
 
 class QueueNode<T> {
-    var value: T?
-    var next: QueueNode?
+    var value: T
+    var next: QueueNode<T>?
     
-    init(value: T? = nil, next: QueueNode? = nil) {
+    init(value: T, next: QueueNode<T>? = nil) {
         self.value = value
         self.next = next
     }
 }
 
-struct Queue<T>: Sequence {
+struct QueueStorage<T>: Sequence {
     
-    var head: QueueNode<T>
-    var tail: QueueNode<T>
+    var head: QueueNode<T>?
+    var tail: QueueNode<T>?
     
     init() {
-        self.head = QueueNode(value: nil, next: nil)
+        self.head = nil
         self.tail = head
     }
     
@@ -35,82 +35,89 @@ struct Queue<T>: Sequence {
     }
     
     func makeIterator() -> QueueIterator<T> {
-        return QueueIterator(queue: self)
+        return QueueIterator<T>(queue: self)
     }
     
     mutating func enqueue(_ element: T) {
+        let current = QueueNode(value: element, next: nil)
+        
         if self.isEmpty() {
-            let current = QueueNode(value: element, next: nil)
             head = current
             tail = head
         } else {
-            let current = QueueNode(value: element, next: nil)
-            tail.next = current
-            tail = current
+            tail!.next = current
+            tail = tail!.next
         }
     }
     
     mutating func dequeue() {
         if self.isEmpty() {
             return
-        } else if head.value != nil && head.next == nil {
+        } else if head!.next == nil {
             self = .init()
         } else {
-            head = head.next!
+            head = head!.next
         }
     }
     
     func getHead() -> T? {
-        return head.value
+        return head?.value
     }
     
     func getTail() -> T? {
-        return tail.value
+        return tail?.value
     }
     
     func isEmpty() -> Bool {
-        return head.value == nil && head.next == nil
+        return head == nil
     }
     
     func printQueue() {
         var current = head
-        while current.value != nil {
-            print(current.value!)
-            if current.next == nil {
-                return
-            } else {
-                current = current.next!
-            }
+        while current != nil {
+            print(current!.value)
+            current = current?.next
         }
     }
 }
 
 struct QueueIterator<T>: IteratorProtocol {
-    var queue: Queue<T>
+    var queue: QueueStorage<T>
     
-    init(queue: Queue<T>) {
+    init(queue: QueueStorage<T>) {
         self.queue = queue
     }
     
     mutating func next() -> T? {
-        
-        if !queue.isEmpty() && queue.head.next != nil {
+        if queue.head != nil {
             defer {
-                queue.head = queue.head.next!
+                queue.head = queue.head?.next
             }
-            return queue.head.value
-        } else if !queue.isEmpty() && queue.head.next == nil {
-            defer { queue.head.value = nil }
-            return queue.head.value
-        } else {
-            return nil
+            return queue.head?.value
         }
+        return nil
     }
 }
 
 #Playground {
-    var q = Queue(values: [1,2,3,4])
-    for val in q {
-        print(val)
+    print("Starting")
+    var q = QueueStorage(values: [1,2,3,4])
+    print("All values")
+    for i in q {
+        print(i)
     }
+    print("Values")
+    q.printQueue()
+    q.dequeue()
+    q.dequeue()
+    q.dequeue()
+    q.dequeue()
+    q.dequeue()
+    print("After dequeue")
+    q.printQueue()
+    print("After enqueue")
+    q.enqueue(1)
+    q.enqueue(1)
+    q.enqueue(1)
+    q.printQueue()
 }
