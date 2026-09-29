@@ -33,7 +33,6 @@ final class QueueStorage<T>{
             head = current
             tail = head
         } else {
-            
             tail!.next = current
             tail = tail!.next
         }
@@ -81,7 +80,7 @@ struct QueueIterator<T>: IteratorProtocol {
     }
 }
 
-struct Queue<T>: Sequence{
+struct Queue<T>: Sequence {
     
     private var storage: QueueStorage<T>
     
@@ -140,4 +139,3 @@ struct Queue<T>: Sequence{
     }
     
 }
-
