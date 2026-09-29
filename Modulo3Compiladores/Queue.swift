@@ -5,6 +5,8 @@
 //  Created by Leo A.Molina on 28/09/26.
 //
 
+import Playgrounds
+
 class QueueNode<T> {
     var value: T?
     var next: QueueNode?
@@ -32,8 +34,8 @@ struct Queue<T>: Sequence {
         }
     }
     
-    func makeIterator() -> QueueIterator {
-        
+    func makeIterator() -> QueueIterator<T> {
+        return QueueIterator(queue: self)
     }
     
     mutating func enqueue(_ element: T) {
@@ -83,6 +85,32 @@ struct Queue<T>: Sequence {
     }
 }
 
-struct QueueIterator: IteratorProtocol {
-    var
+struct QueueIterator<T>: IteratorProtocol {
+    var queue: Queue<T>
+    
+    init(queue: Queue<T>) {
+        self.queue = queue
+    }
+    
+    mutating func next() -> T? {
+        
+        if !queue.isEmpty() && queue.head.next != nil {
+            defer {
+                queue.head = queue.head.next!
+            }
+            return queue.head.value
+        } else if !queue.isEmpty() && queue.head.next == nil {
+            defer { queue.head.value = nil }
+            return queue.head.value
+        } else {
+            return nil
+        }
+    }
+}
+
+#Playground {
+    var q = Queue(values: [1,2,3,4])
+    for val in q {
+        print(val)
+    }
 }
