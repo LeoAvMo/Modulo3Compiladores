@@ -11,6 +11,7 @@
 
 import Testing
 
+@Suite(.serialized)
 struct StackTests {
 
     @Test("Initialize an empty stack")

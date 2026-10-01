@@ -15,8 +15,7 @@ import Testing
 //  QueueTests.swift
 //
 
-import Testing
-
+@Suite(.serialized)
 struct QueueTests {
 
     @Test("Initialize an empty queue")

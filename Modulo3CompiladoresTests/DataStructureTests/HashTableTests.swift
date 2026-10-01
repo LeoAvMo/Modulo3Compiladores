@@ -11,6 +11,7 @@
 
 import Testing
 
+@Suite(.serialized)
 struct HashTableTests {
 
     @Test("Insert and find key-value pairs")
