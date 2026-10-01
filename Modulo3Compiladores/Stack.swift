@@ -67,7 +67,7 @@ struct Stack<T>: Sequence {
         switch top {
             case .empty:
                 return
-            case .node(let value, let next):
+            case .node(_, let next):
                 top = next
         }
     }
@@ -77,7 +77,7 @@ struct Stack<T>: Sequence {
         switch top {
             case .empty:
                 return nil
-            case .node(let value, let next):
+            case .node(let value, _):
                 return value
         }
     }
