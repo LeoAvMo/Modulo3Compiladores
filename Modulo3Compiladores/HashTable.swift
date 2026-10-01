@@ -5,12 +5,13 @@
 //  Created by Leo A.Molina on 29/09/26.
 //
 
-enum CellState<K: Hashable, V>{
-    case empty
-    case occupied(node: HashNode<K,V>)
-    case deleted
-}
-
+/// A Key-Value pair in a hash table.
+///
+/// For this implementation, the Key value needs to conform to Hashable since it's using the built in .hashValue function from Swift.
+///
+/// - Parameters:
+///     - Key: A value that conforms to Hashable that serves as the key to obtain a value.
+///     - Value: The value linked to the key in the Hash Table.
 struct HashNode<K: Hashable, V> {
     var key: K
     var value: V
@@ -21,6 +22,33 @@ struct HashNode<K: Hashable, V> {
     }
 }
 
+/// The state of the cell in the hash array.
+///
+/// Holds up to 3 states that represent the existance of a node.
+///
+/// ### Empty
+/// The cell does not hold or has not hold any value.
+/// ### Occupied
+/// The cell contains a node with a Key and a Value.
+/// ### Deleted
+/// The used to contain a node and is now a thombstone.
+enum CellState<K: Hashable, V>{
+    case empty
+    case occupied(node: HashNode<K,V>)
+    case deleted
+}
+
+/// A data structure that holds key-value pairs with fast lookup time
+///
+/// This implementation of a hash table uses a linear probing algorithm, open addressing and a tombstone deleting heuristic of number of tombstones >= count. Because this implementation uses Swift's hashing function, the key must conform to the Hashable protocol.
+///
+/// # Operations
+/// ## insert
+/// Inserts an element into the hash table in average constant time *O(1)*. Array resizing can get to *O(capacity)*.
+/// ## delete
+/// Deletes an element in the hash table in average contant time *O(1)* and leaves a tombstone behind. This method can delete tombstones, so it can get to *O(capacity)*.
+/// ## find
+/// Finds a key-value pair in the hash table and returns the value if there is one or a nil if the key doesn't exist; this is done in an average of constant time *O(1)*. Can get up to *O(capacity)*.
 struct HashTable<K: Hashable, V> {
     private var array: [CellState<K,V>] = []
     
